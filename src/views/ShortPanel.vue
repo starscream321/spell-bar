@@ -1,19 +1,27 @@
 <template>
-<div class="main">
-  <div>
-    <button @click="open">X</button>
-  </div>
-  <div class="panel">
-    <div class="item" v-for="(one, idx) of shortPanel" :key="one"
-         :style="{
+  <div class="main">
+    <div>
+      <button @click="open">X</button>
+    </div>
+    <div class="panel">
+      <div class="item" v-for="(one, idx) of shortPanel" :key="one"
+           @click="handleClick(idx)"
+           style="position: relative"
+           :style="{
             backgroundImage: `url(${one ? one.icon : ''})`,
             backgroundSize: 'cover'
                }"
-    >
-      <p class="icon_num">{{idx + 1}}</p>
+      >
+        <p class="icon_num">{{ idx + 1 }}</p>
+        <div v-show="one?.isCd" class="item"
+             style="position: absolute; width: 100%; height: 100%"
+             :style="{
+               background: `linear-gradient(360deg, rgba(0, 0, 0, 0.5) ${cooldownAnimation(one?.cd)}% , transparent ${cooldownAnimation(one?.cd)}%)`
+           }"
+        ></div>
+      </div>
     </div>
   </div>
-</div>
 </template>
 
 <script lang="ts">
@@ -30,9 +38,23 @@ export default defineComponent({
     const open = () => {
       router.push({ path: '/setting' })
     }
+    const cooldownAnimation = (cd: number, currentCd: number) => {
+      const k = 100 / cd
+      return k * currentCd
+    }
+    const handleClick = (idx: number) => {
+      store.$patch((state) => {
+        if (!state.shortPanel[idx].isCd) {
+          state.shortPanel[idx].isCd = true
+        }
+        console.log(shortPanel.value[idx])
+      })
+    }
     return {
       shortPanel,
-      open
+      open,
+      handleClick,
+      cooldownAnimation
     }
   }
 })
@@ -44,6 +66,7 @@ export default defineComponent({
   height: 100vh;
   position: relative;
 }
+
 .panel {
   display: flex;
   flex-direction: row;
@@ -53,6 +76,7 @@ export default defineComponent({
   left: 0;
   right: 0;
 }
+
 .item {
   display: flex;
   position: relative;
@@ -64,6 +88,7 @@ export default defineComponent({
   height: 50px;
   margin: 5px;
   overflow: hidden;
+  transition: all 1s ease-in-out;
 }
 
 .icon_num {

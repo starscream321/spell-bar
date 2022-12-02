@@ -31,6 +31,7 @@
         <div>
           <div class="item" v-for="(one, idx) of shortPanel" :key="one"
                @drop="onDrop($event, idx)"
+               @click="removeItem(idx)"
                @dragover.prevent
                @dragenter.prevent
                :style="{
@@ -75,6 +76,11 @@ export default defineComponent({
         })
       }
     }
+    const removeItem = (idx: number) => {
+      store.$patch((state) => {
+        delete state.shortPanel[idx]
+      })
+    }
     const close = () => {
       router.push({ path: '/' })
     }
@@ -85,7 +91,8 @@ export default defineComponent({
       arr2,
       dragStart,
       onDrop,
-      close
+      close,
+      removeItem
     }
   }
 })
